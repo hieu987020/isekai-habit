@@ -1,265 +1,258 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:isekai_habit/domain/providers/habit_provider.dart';
+import 'package:provider/provider.dart';
 
 class HabitScreen extends StatelessWidget {
   const HabitScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min, // Center the components
-          children: const [
-            HabitComponent(title: "Work out"),
-            SizedBox(height: 12),
-            HabitComponent(title: "Reading"),
-          ],
-        ),
-      ),
-    );
-  }
-}
+    final habitProvider = Provider.of<HabitProvider>(context);
 
-class HabitComponent extends StatefulWidget {
-  final String title;
+    if (habitProvider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-  const HabitComponent({super.key, required this.title});
+    final habitData = habitProvider.habitData;
+    final allDays = habitProvider.allDays;
 
-  @override
-  State<HabitComponent> createState() => _HabitComponentState();
-}
+    int weeks = (allDays.length / 7).ceil();
 
-class _HabitComponentState extends State<HabitComponent> {
-  final int daysPerWeek = 7;
-  final List<int> titleRows = [0, 2, 4]; // Mon (0), Wed (2), Fri (4)
-  final List<String> titleTexts = ["Mon", "Wed", "Fri"];
-  late DateTime startDate;
-  late DateTime endDate;
-  late Map<String, bool> activityData;
-  late int totalDays;
-  late int fullWeeks;
-  late int remainingDays;
-
-  @override
-  void initState() {
-    super.initState();
-    DateTime today = DateTime.now();
-    endDate = today;
-    DateTime initialStart = DateTime(today.year - 1, today.month, today.day);
-
-    int daysToMonday =
-        (initialStart.weekday == DateTime.monday)
-            ? 0
-            : (initialStart.weekday % 7);
-    startDate = initialStart.subtract(Duration(days: daysToMonday));
-
-    totalDays = endDate.difference(startDate).inDays + 1;
-    fullWeeks = totalDays ~/ daysPerWeek;
-    remainingDays = totalDays % daysPerWeek;
-    activityData = {};
-  }
-
-  void showLogDialog(DateTime date) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        String dateKey = date.toLocal().toString().split(' ')[0];
-
-        return AlertDialog(
-          title: const Text("Log Habit"),
-          content: Text("Mark habit as complete for $dateKey?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  activityData[dateKey] = true;
-                });
-                Navigator.pop(context);
-              },
-              child: const Text("Complete"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void logToday() {
-    showLogDialog(endDate);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width:
-          (fullWeeks + (remainingDays > 0 ? 1 : 0)) * 14 +
-          80, // Fit all weeks in view
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black, width: 2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Title row with settings icon
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
+      children: [
+        Container(
+          width: 820, // Adjust width for labels
+          height: 200,
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.blueGrey),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                widget.title,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
+              // ✅ First Column: Labels (Mon, Wed, Fri)
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: List.generate(7, (index) {
+                  // Only show labels for Monday, Wednesday, Friday
+                  if (index == 0 || index == 2 || index == 4) {
+                    return Container(
+                      width: 40,
+                      height: 11,
+                      alignment: Alignment.centerRight,
+                      margin: const EdgeInsets.all(1.2),
+                      child: Text(
+                        _getWeekdayLabel(index),
+                        style: const TextStyle(fontSize: 9),
+                      ),
+                    );
+                  } else {
+                    return const SizedBox(width: 40, height: 11);
+                  }
+                }),
               ),
-              IconButton(
-                icon: const Icon(Icons.settings, size: 18),
-                onPressed: () {}, // Add settings functionality
+
+              // ✅ Habit Grid
+              Row(
+                children: List.generate(weeks, (weekIndex) {
+                  return Column(
+                    children: List.generate(7, (dayIndex) {
+                      int dayPos = weekIndex * 7 + dayIndex;
+                      if (dayPos >= allDays.length) {
+                        return const SizedBox.shrink();
+                      }
+                      DateTime date = allDays[dayPos];
+                      return HabitCell(
+                        onTap: () => (),
+                        isCompleted: habitData[date] ?? false,
+                        date: date,
+                      );
+                    }),
+                  );
+                }),
               ),
             ],
           ),
-          const SizedBox(height: 4),
-
-          // Habit tracking grid
-          Padding(
-            padding: const EdgeInsets.all(5),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Left labels (Only Mon, Wed, Fri)
-                Column(
-                  children: List.generate(daysPerWeek, (rowIndex) {
-                    bool showLabel = titleRows.contains(rowIndex);
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: SizedBox(
-                        height: 12,
-                        child:
-                            showLabel
-                                ? Text(
-                                  titleTexts[titleRows.indexOf(rowIndex)],
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )
-                                : const SizedBox(),
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(width: 4),
-                // Habit tracking grid
-                Row(
-                  children: [
-                    for (int weekIndex = 0; weekIndex < fullWeeks; weekIndex++)
-                      Column(
-                        children: List.generate(daysPerWeek, (dayIndex) {
-                          DateTime currentDate = startDate.add(
-                            Duration(
-                              days: (weekIndex * daysPerWeek) + dayIndex,
-                            ),
-                          );
-                          String dateKey =
-                              currentDate.toLocal().toString().split(' ')[0];
-                          bool isToday = currentDate.isAtSameMomentAs(endDate);
-
-                          return GestureDetector(
-                            onTap: () => showLogDialog(currentDate),
-                            child: MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: Padding(
-                                padding: const EdgeInsets.all(1),
-                                child: ActivityBox(
-                                  isLogged: activityData.containsKey(dateKey),
-                                  date: currentDate,
-                                  isToday: isToday,
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
-                      ),
-                    // Last column (Remaining days)
-                    if (remainingDays > 0)
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: List.generate(remainingDays, (dayIndex) {
-                          DateTime currentDate = startDate.add(
-                            Duration(
-                              days: (fullWeeks * daysPerWeek) + dayIndex,
-                            ),
-                          );
-                          String dateKey =
-                              currentDate.toLocal().toString().split(' ')[0];
-                          bool isToday = currentDate.isAtSameMomentAs(endDate);
-
-                          return GestureDetector(
-                            onTap: () => showLogDialog(currentDate),
-                            child: MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: Padding(
-                                padding: const EdgeInsets.all(1),
-                                child: ActivityBox(
-                                  isLogged: activityData.containsKey(dateKey),
-                                  date: currentDate,
-                                  isToday: isToday,
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Log Today Button
-          Center(
-            child: ElevatedButton(
-              onPressed: logToday,
-              style: ElevatedButton.styleFrom(minimumSize: const Size(100, 30)),
-              child: const Text("Log Today", style: TextStyle(fontSize: 12)),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
+
+  /// ✅ Function to get "Mon", "Wed", "Fri" labels
+  String _getWeekdayLabel(int index) {
+    switch (index) {
+      case 0:
+        return "Mon";
+      case 2:
+        return "Wed";
+      case 4:
+        return "Fri";
+      default:
+        return "";
+    }
+  }
 }
+// class HabitScreen extends StatelessWidget {
+//   List<DateTime> allDays = [];
+//   Map<DateTime, bool> habitData = {};
+//   bool isLoading = true;
 
-class ActivityBox extends StatelessWidget {
-  final bool isLogged;
+//   HabitScreen({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final habitProvider = Provider.of<HabitProvider>(context);
+//     if (isLoading) {
+//       return Center(child: CircularProgressIndicator());
+//     }
+
+//     int weeks = (allDays.length / 7).ceil();
+
+//     return Column(
+//       children: [
+//         Container(
+//           width: 820, // Adjust width for labels
+//           height: 200,
+//           padding: EdgeInsets.all(8),
+//           decoration: BoxDecoration(
+//             border: Border.all(color: Colors.blueGrey),
+//             borderRadius: BorderRadius.circular(4),
+//           ),
+//           child: Row(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               // ✅ First Column: Labels (Mon, Wed, Fri)
+//               Column(
+//                 mainAxisAlignment: MainAxisAlignment.start,
+//                 children: List.generate(7, (index) {
+//                   // Only show labels for Monday, Wednesday, Friday
+//                   if (index == 0 || index == 2 || index == 4) {
+//                     return Container(
+//                       width: 40,
+//                       height: 11,
+//                       // color: Colors.red,
+//                       alignment: Alignment.centerRight,
+//                       margin: EdgeInsets.all(1.2),
+//                       child: Text(
+//                         _getWeekdayLabel(index),
+//                         style: TextStyle(fontSize: 9),
+//                       ),
+//                     );
+//                   } else {
+//                     return Container(
+//                       width: 40,
+//                       height: 11,
+//                       margin: EdgeInsets.all(1.2),
+//                     );
+//                   }
+//                 }),
+//               ),
+
+//               // ✅ Habit Grid
+//               Row(
+//                 children: List.generate(weeks, (weekIndex) {
+//                   return Column(
+//                     children: List.generate(7, (dayIndex) {
+//                       int dayPos = weekIndex * 7 + dayIndex;
+//                       if (dayPos >= allDays.length) {
+//                         return SizedBox.shrink();
+//                       }
+//                       DateTime date = allDays[dayPos];
+//                       return HabitCell(
+//                         onTap: () {},
+//                         isCompleted: habitData[date] ?? false,
+//                         date: date,
+//                       );
+//                     }),
+//                   );
+//                 }),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+
+//   /// ✅ Function to get "Mon", "Wed", "Fri" labels
+//   String _getWeekdayLabel(int index) {
+//     switch (index) {
+//       case 0:
+//         return "Mon";
+//       case 2:
+//         return "Wed";
+//       case 4:
+//         return "Fri";
+//       default:
+//         return "";
+//     }
+//   }
+// }
+
+class HabitCell extends StatefulWidget {
   final DateTime date;
-  final bool isToday;
+  final bool isCompleted;
+  final VoidCallback onTap;
 
-  const ActivityBox({
+  const HabitCell({
     super.key,
-    required this.isLogged,
+    required this.onTap,
+    required this.isCompleted,
     required this.date,
-    required this.isToday,
   });
 
   @override
+  State<HabitCell> createState() => _HabitCellState();
+}
+
+class _HabitCellState extends State<HabitCell> {
+  bool _isHovered = false;
+
+  Color? _getColor(bool isCompleted) {
+    return isCompleted ? Colors.green[500] : Colors.grey[300];
+  }
+
+  Color _getBorderColor() {
+    if (_isHovered) return Colors.black87; // 🔥 Show border on hover
+    return Colors.grey[400]!;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // ✅ Format date as "Mon Oct 21 2024"
+    String formattedDate = DateFormat("E MMM dd yyyy").format(widget.date);
+    String status = widget.isCompleted ? "Done" : "-";
     return Tooltip(
-      message:
-          "${date.toLocal().toString().split(' ')[0]}${isLogged ? " ✅ Logged" : " ❌ Not Logged"}",
-      child: Container(
-        width: 12,
-        height: 12,
-        decoration: BoxDecoration(
-          color: isLogged ? Colors.green : Colors.grey[300],
-          borderRadius: BorderRadius.circular(2),
-          border: isToday ? Border.all(color: Colors.black, width: 1.5) : null,
+      message: "$status\n$formattedDate", // ✅ Two lines in tooltip
+      textStyle: TextStyle(fontSize: 11, color: Colors.grey[500]),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey[300] ?? Colors.grey),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter:
+            (_) => setState(() => _isHovered = true), // 🔥 Detect hover start
+        onExit:
+            (_) => setState(() => _isHovered = false), // 🔥 Detect hover end
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: Container(
+            width: 11,
+            height: 11,
+            margin: EdgeInsets.all(1.2),
+            decoration: BoxDecoration(
+              color: _getColor(widget.isCompleted),
+              border: Border.all(
+                color: _getBorderColor(),
+                width: _isHovered ? 0.5 : 0.5,
+              ), //Border appears on hover
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
         ),
       ),
     );
