@@ -16,7 +16,7 @@ final GoRouter _router = GoRouter(
         GoRoute(
           path: '/',
           pageBuilder:
-              (context, state) => const NoTransitionPage(child: HabitScreen()),
+              (context, state) => NoTransitionPage(child: HabitScreen()),
         ),
         GoRoute(
           path: '/profile',
