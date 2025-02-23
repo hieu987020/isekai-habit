@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
-class AuthProvider with ChangeNotifier {
+class AuthProvider with ChangeNotifier, DiagnosticableTreeMixin {
   String? _userId;
 
   String? get userId => _userId;

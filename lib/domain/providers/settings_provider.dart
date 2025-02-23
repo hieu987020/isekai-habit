@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
-class SettingsProvider with ChangeNotifier {
+class SettingsProvider with ChangeNotifier, DiagnosticableTreeMixin {
   bool _isDarkMode = false;
 
   bool get isDarkMode => _isDarkMode;

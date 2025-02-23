@@ -2,81 +2,177 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:isekai_habit/domain/providers/habit_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:isekai_habit/domain/entities/habit.dart';
 
 class HabitScreen extends StatelessWidget {
   const HabitScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final habitProvider = Provider.of<HabitProvider>(context);
+    final habitProvider =
+        context.watch<HabitProvider>(); // ✅ Correct way to listen for updates
 
     if (habitProvider.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    final habitData = habitProvider.habitData;
-    final allDays = habitProvider.allDays;
+    final List<Habit> habits = habitProvider.habits;
 
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children:
+            habits.map((habit) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  /// ✅ Habit Title
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        habit.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Icon(Icons.settings, size: 20),
+                    ],
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  /// ✅ Habit Grid (Uses Separate Widget)
+                  HabitGrid(habit: habit),
+
+                  const SizedBox(height: 16), // Spacing between grids
+                ],
+              );
+            }).toList(),
+      ),
+    );
+  }
+}
+
+// class HabitScreenContent extends StatelessWidget {
+//   const HabitScreenContent({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final habitProvider =
+//         context.watch<HabitProvider>(); // ✅ Correct way to listen for updates
+
+//     if (habitProvider.isLoading) {
+//       return const Center(child: CircularProgressIndicator());
+//     }
+
+//     final List<Habit> habits = habitProvider.habits;
+
+//     return SingleChildScrollView(
+//       padding: const EdgeInsets.all(16.0),
+//       child: Column(
+//         children:
+//             habits.map((habit) {
+//               return Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   /// ✅ Habit Title
+//                   Row(
+//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                     children: [
+//                       Text(
+//                         habit.name,
+//                         style: const TextStyle(
+//                           fontSize: 16,
+//                           fontWeight: FontWeight.bold,
+//                         ),
+//                       ),
+//                       const Icon(Icons.settings, size: 20),
+//                     ],
+//                   ),
+
+//                   const SizedBox(height: 8),
+
+//                   /// ✅ Habit Grid (Uses Separate Widget)
+//                   HabitGrid(habit: habit),
+
+//                   const SizedBox(height: 16), // Spacing between grids
+//                 ],
+//               );
+//             }).toList(),
+//       ),
+//     );
+//   }
+// }
+
+class HabitGrid extends StatelessWidget {
+  final Habit habit;
+
+  const HabitGrid({super.key, required this.habit});
+
+  @override
+  Widget build(BuildContext context) {
+    final List<DateTime> allDays = habit.timeline.keys.toList()..sort();
     int weeks = (allDays.length / 7).ceil();
 
-    return Column(
-      children: [
-        Container(
-          width: 820, // Adjust width for labels
-          height: 200,
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.blueGrey),
-            borderRadius: BorderRadius.circular(4),
+    return Container(
+      width: 820,
+      height: 200,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.blueGrey),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// ✅ First Column: Labels (Mon, Wed, Fri)
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: List.generate(7, (index) {
+              if (index == 0 || index == 2 || index == 4) {
+                return Container(
+                  width: 40,
+                  height: 11,
+                  alignment: Alignment.centerRight,
+                  margin: const EdgeInsets.all(1.2),
+                  child: Text(
+                    _getWeekdayLabel(index),
+                    style: const TextStyle(fontSize: 9),
+                  ),
+                );
+              } else {
+                return Container(
+                  width: 40,
+                  height: 11,
+                  margin: const EdgeInsets.all(1.2),
+                );
+              }
+            }),
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ✅ First Column: Labels (Mon, Wed, Fri)
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: List.generate(7, (index) {
-                  // Only show labels for Monday, Wednesday, Friday
-                  if (index == 0 || index == 2 || index == 4) {
-                    return Container(
-                      width: 40,
-                      height: 11,
-                      alignment: Alignment.centerRight,
-                      margin: const EdgeInsets.all(1.2),
-                      child: Text(
-                        _getWeekdayLabel(index),
-                        style: const TextStyle(fontSize: 9),
-                      ),
-                    );
-                  } else {
-                    return const SizedBox(width: 40, height: 11);
-                  }
-                }),
-              ),
 
-              // ✅ Habit Grid
-              Row(
-                children: List.generate(weeks, (weekIndex) {
-                  return Column(
-                    children: List.generate(7, (dayIndex) {
-                      int dayPos = weekIndex * 7 + dayIndex;
-                      if (dayPos >= allDays.length) {
-                        return const SizedBox.shrink();
-                      }
-                      DateTime date = allDays[dayPos];
-                      return HabitCell(
-                        onTap: () => (),
-                        isCompleted: habitData[date] ?? false,
-                        date: date,
-                      );
-                    }),
+          /// ✅ Habit Grid
+          Row(
+            children: List.generate(weeks, (weekIndex) {
+              return Column(
+                children: List.generate(7, (dayIndex) {
+                  int dayPos = weekIndex * 7 + dayIndex;
+                  if (dayPos >= allDays.length) {
+                    return const SizedBox.shrink();
+                  }
+                  DateTime date = allDays[dayPos];
+                  return HabitCell(
+                    onTap: () {},
+                    isCompleted: habit.timeline[date] ?? false,
+                    date: date,
                   );
                 }),
-              ),
-            ],
+              );
+            }),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -94,6 +190,7 @@ class HabitScreen extends StatelessWidget {
     }
   }
 }
+
 // class HabitScreen extends StatelessWidget {
 //   List<DateTime> allDays = [];
 //   Map<DateTime, bool> habitData = {};
