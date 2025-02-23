@@ -29,15 +29,11 @@ class MyAppWithProviders extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(providers: _buildProviders(), child: const MyApp());
-  }
-
-  List<ChangeNotifierProvider> _buildProviders() {
-    return [
+    final providers = [
       ChangeNotifierProvider(create: (_) => getIt<HabitProvider>()),
       ChangeNotifierProvider(create: (_) => getIt<AuthProvider>()),
       ChangeNotifierProvider(create: (_) => getIt<SettingsProvider>()),
-      // Add more providers as needed...
     ];
+    return MultiProvider(providers: providers, child: const MyApp());
   }
 }

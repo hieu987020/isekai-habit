@@ -16,18 +16,18 @@ class UserModel {
     required this.habits,
   });
 
-  // Convert UserModel to User entity
+  /// ✅ Convert UserModel -> User (Entity)
   User toEntity() {
     return User(
       id: id,
       name: name,
       email: email,
       createdAt: createdAt,
-      habits: habits.map((habit) => habit.toEntity()).toList(),
+      habits: habits.map((habitModel) => habitModel.toEntity()).toList(),
     );
   }
 
-  // Factory to create a UserModel from a User entity
+  /// ✅ Convert User (Entity) -> UserModel
   factory UserModel.fromEntity(User user) {
     return UserModel(
       id: user.id,
