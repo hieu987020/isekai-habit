@@ -1,40 +1,26 @@
 import 'package:isekai_habit/data/models/habit_model.dart';
-import 'package:isekai_habit/domain/entities/user.dart';
+import 'package:isekai_habit/domain/entities/user_entity.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class UserModel {
-  final String id;
-  final String name;
-  final String email;
-  final DateTime createdAt;
-  final List<HabitModel> habits;
+part 'user_model.freezed.dart';
+part 'user_model.g.dart';
 
-  UserModel({
-    required this.id,
-    required this.name,
-    required this.email,
-    required this.createdAt,
-    required this.habits,
-  });
+@freezed
+class UserModel with _$UserModel {
+  factory UserModel({
+    @JsonKey(name: 'user_id') required String id,
+    @JsonKey(name: 'user_name') required String name,
+    @Default([]) List<HabitModel> habits,
+  }) = _UserModel;
 
-  /// ✅ Convert UserModel -> User (Entity)
-  User toEntity() {
-    return User(
-      id: id,
-      name: name,
-      email: email,
-      createdAt: createdAt,
-      habits: habits.map((habitModel) => habitModel.toEntity()).toList(),
-    );
-  }
+  factory UserModel.fromJson(Map<String, dynamic> json) =>
+      _$UserModelFromJson(json);
+}
 
-  /// ✅ Convert User (Entity) -> UserModel
-  factory UserModel.fromEntity(User user) {
-    return UserModel(
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      createdAt: user.createdAt,
-      habits: user.habits.map((habit) => HabitModel.fromEntity(habit)).toList(),
-    );
-  }
+extension UserModelX on UserModel {
+  UserEntity toEntity() => UserEntity(
+        id: id,
+        name: name,
+        habits: habits.map((habit) => habit.toEntity()).toList(),
+      );
 }
