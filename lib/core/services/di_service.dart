@@ -14,7 +14,9 @@ void setupLocator() {
   getIt.registerLazySingleton<Dio>(
     () => Dio(
       BaseOptions(
-        baseUrl: 'http://127.0.0.1:8000', // Set base URL for API
+        // baseUrl: 'http://127.0.0.1:8000', // Set base URL for API
+        baseUrl:
+            'https://isekai-habit-api-production.up.railway.app', // Set base URL for API
         connectTimeout: const Duration(
           seconds: 10,
         ), // Prevents long waiting time
