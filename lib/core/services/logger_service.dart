@@ -8,20 +8,19 @@ class LoggerService {
       lineLength: 100,
       colors: true,
       printEmojis: true,
-      dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart, // ✅ Updated format
     ),
   );
 
   void info(String message) {
-    _logger.i(_formatMessage("INFO", message));
+    _logger.i(message);
   }
 
   void debug(String message) {
-    _logger.d(_formatMessage("DEBUG", message));
+    _logger.d(message);
   }
 
   void warning(String message) {
-    _logger.w(_formatMessage("WARNING", message));
+    _logger.w(message);
   }
 
   void error(
@@ -30,20 +29,6 @@ class LoggerService {
     dynamic error,
     StackTrace? stackTrace,
   }) {
-    _logger.e(
-      _formatMessage("ERROR", message),
-      error: error,
-      stackTrace: stackTrace,
-    );
-  }
-
-  /// ✅ Custom formatter to make logs appear in a box
-  String _formatMessage(String level, String message) {
-    final border = "═" * (message.length + 10); // Adjust box width
-    return """
-╔$border╗
-║  📌 [$level] $message  
-╚$border╝
-""";
+    _logger.e(message, error: error, stackTrace: stackTrace);
   }
 }

@@ -58,8 +58,6 @@ class HabitRepository {
   /// Fetch user data and return UserEntity
   Future<UserEntity> fetchUser() async {
     try {
-      _logger.info("Fetching user data...");
-
       final String endpoint = "/habits"; // Only the endpoint
       final String fullUrl = "${_dio.options.baseUrl}$endpoint"; // Full URL
 
@@ -67,7 +65,6 @@ class HabitRepository {
 
       // ✅ Step 1: Fetch user data (Includes habit data)
       final response = await _dio.get(endpoint);
-      _logger.info("Raw API Response: ${response.data}");
 
       if (response.statusCode != 200) {
         _logger.error(
@@ -79,11 +76,6 @@ class HabitRepository {
 
       // ✅ Extract user data
       final Map<String, dynamic> userData = response.data;
-      _logger.info("Processing user data: ${userData['user_name']}");
-
-      _logger.debug(
-        "Parsed user: ${userData['user_id']}, habits count: ${userData['habits']?.length ?? 0}",
-      );
 
       // ✅ Convert response to UserModel
       UserModel userModel = UserModel.fromJson(userData);
