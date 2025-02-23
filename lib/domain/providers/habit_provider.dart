@@ -22,7 +22,6 @@ class HabitProvider with ChangeNotifier, DiagnosticableTreeMixin {
   /// ✅ Fetch Habits from Repository
   Future<void> fetchHabits() async {
     _logger.info("Fetching habits from repository...");
-
     try {
       _user = await _habitRepository.fetchUser();
       _habits = _user!.habits;

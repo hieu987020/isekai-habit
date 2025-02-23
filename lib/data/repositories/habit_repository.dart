@@ -68,7 +68,6 @@ class HabitRepository {
       // ✅ Step 1: Fetch user data (Includes habit data)
       final response = await _dio.get(endpoint);
       _logger.info("Raw API Response: ${response.data}");
-      _logger.info("API Data Type: ${response.data.runtimeType}");
 
       if (response.statusCode != 200) {
         _logger.error(

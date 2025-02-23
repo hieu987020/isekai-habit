@@ -5,7 +5,7 @@ class LoggerService {
     printer: PrettyPrinter(
       methodCount: 1, // Show function calls in log
       errorMethodCount: 5,
-      lineLength: 80,
+      lineLength: 100,
       colors: true,
       printEmojis: true,
       dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart, // ✅ Updated format
@@ -13,15 +13,15 @@ class LoggerService {
   );
 
   void info(String message) {
-    _logger.i(message);
+    _logger.i(_formatMessage("INFO", message));
   }
 
   void debug(String message) {
-    _logger.d(message);
+    _logger.d(_formatMessage("DEBUG", message));
   }
 
   void warning(String message) {
-    _logger.w(message);
+    _logger.w(_formatMessage("WARNING", message));
   }
 
   void error(
@@ -30,6 +30,20 @@ class LoggerService {
     dynamic error,
     StackTrace? stackTrace,
   }) {
-    _logger.e(message, error: error, stackTrace: stackTrace);
+    _logger.e(
+      _formatMessage("ERROR", message),
+      error: error,
+      stackTrace: stackTrace,
+    );
+  }
+
+  /// ✅ Custom formatter to make logs appear in a box
+  String _formatMessage(String level, String message) {
+    final border = "═" * (message.length + 10); // Adjust box width
+    return """
+╔$border╗
+║  📌 [$level] $message  
+╚$border╝
+""";
   }
 }

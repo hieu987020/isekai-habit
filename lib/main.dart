@@ -13,7 +13,6 @@ void main() {
   setupLocator();
 
   final logger = getIt<LoggerService>();
-
   try {
     logger.info("Starting Isekai Habit app...");
     runApp(MyAppWithProviders());
@@ -23,6 +22,22 @@ void main() {
     });
   }
 }
+
+// Future<void> setupApp() async {
+//   // ✅ Setup Dependency Injection & Logger
+//   setupLocator();
+//   final logger = getIt<LoggerService>();
+
+//   try {
+//     logger.info("Starting Isekai Habit app...");
+//     runApp(MyAppWithProviders());
+//   } catch (e, stackTrace) {
+//     logger.error("Error during app startup", error: e, {
+//       stackTrace: stackTrace,
+//     });
+//   }
+//   runApp(MyAppWithProviders()); // Run the app
+// }
 
 class MyAppWithProviders extends StatelessWidget {
   const MyAppWithProviders({super.key});
