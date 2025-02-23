@@ -8,7 +8,7 @@ class LoggerService {
       lineLength: 80,
       colors: true,
       printEmojis: true,
-      printTime: true,
+      dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart, // ✅ Updated format
     ),
   );
 
@@ -24,7 +24,12 @@ class LoggerService {
     _logger.w(message);
   }
 
-  void error(String message, Object e, {dynamic error, StackTrace? stackTrace}) {
+  void error(
+    String message,
+    Object e, {
+    dynamic error,
+    StackTrace? stackTrace,
+  }) {
     _logger.e(message, error: error, stackTrace: stackTrace);
   }
 }

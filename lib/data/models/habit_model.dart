@@ -1,23 +1,31 @@
-import 'package:isekai_habit/domain/entities/habit.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:isekai_habit/domain/entities/habit_entity.dart';
 
-class HabitModel {
-  final String id;
-  final String name;
-  final Map<DateTime, bool> timeline;
+part 'habit_model.freezed.dart';
+part 'habit_model.g.dart';
 
-  HabitModel({
-    required this.id,
-    required this.name,
-    required this.timeline,
-  });
+@freezed
+class HabitModel with _$HabitModel {
+  const factory HabitModel({
+    @JsonKey(name: 'habit_id') required String id,
+    @JsonKey(name: 'habit_name') required String name,
+    required Map<String, bool> timeline,
+  }) = _HabitModel;
 
-  // Convert HabitModel to Habit entity
-  Habit toEntity() {
-    return Habit(id: id, name: name, timeline: timeline);
-  }
+  /// ✅ JSON Serialization
+  factory HabitModel.fromJson(Map<String, dynamic> json) =>
+      _$HabitModelFromJson(json);
+}
 
-  // Factory to create a HabitModel from a Habit entity
-  factory HabitModel.fromEntity(Habit habit) {
-    return HabitModel(id: habit.id, name: habit.name, timeline: habit.timeline);
+/// ✅ Extension to convert `HabitModel` → `HabitEntity`
+extension HabitModelX on HabitModel {
+  HabitEntity toEntity() {
+    return HabitEntity(
+      id: id,
+      name: name,
+      timeline: timeline.map(
+        (key, value) => MapEntry(DateTime.parse(key), value),
+      ),
+    );
   }
 }

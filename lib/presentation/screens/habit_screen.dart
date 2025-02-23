@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:isekai_habit/domain/providers/habit_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:isekai_habit/domain/entities/habit.dart';
+import 'package:isekai_habit/domain/entities/habit_entity.dart';
 
 class HabitScreen extends StatelessWidget {
   const HabitScreen({super.key});
@@ -16,7 +16,7 @@ class HabitScreen extends StatelessWidget {
       return const Center(child: CircularProgressIndicator());
     }
 
-    final List<Habit> habits = habitProvider.habits;
+    final List<HabitEntity> habits = habitProvider.habits;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -107,7 +107,7 @@ class HabitScreen extends StatelessWidget {
 // }
 
 class HabitGrid extends StatelessWidget {
-  final Habit habit;
+  final HabitEntity habit;
 
   const HabitGrid({super.key, required this.habit});
 
