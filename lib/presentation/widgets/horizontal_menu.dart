@@ -34,7 +34,7 @@ class HorizontalMenu extends StatelessWidget {
   }
 }
 
-class MenuItem extends StatelessWidget {
+class MenuItem extends StatefulWidget {
   final IconData icon;
   final String label;
   final VoidCallback onPressed;
@@ -46,14 +46,73 @@ class MenuItem extends StatelessWidget {
   });
 
   @override
+  _MenuItemState createState() => _MenuItemState();
+}
+
+class _MenuItemState extends State<MenuItem> {
+  bool _isHovered = false;
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    return ElevatedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon, size: 24),
-      label: Text(label, style: const TextStyle(fontSize: 16)),
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) => setState(() => _isPressed = false),
+        onTapCancel: () => setState(() => _isPressed = false),
+        onTap: widget.onPressed,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          decoration: BoxDecoration(
+            color:
+                _isPressed
+                    ? Colors
+                        .grey
+                        .shade300 // Click effect
+                    : _isHovered
+                    ? Colors
+                        .grey
+                        .shade100 // Hover effect
+                    : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade300),
+            boxShadow:
+                _isHovered
+                    ? [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ]
+                    : [],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                widget.icon,
+                size: 24,
+                color: _isHovered ? Colors.blue.shade700 : Colors.grey.shade600,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                widget.label,
+                style: TextStyle(
+                  fontSize: 16,
+                  color:
+                      _isHovered ? Colors.blue.shade700 : Colors.grey.shade600,
+                  fontWeight: _isHovered ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
