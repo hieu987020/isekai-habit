@@ -25,6 +25,11 @@ class HorizontalMenu extends StatelessWidget {
           const SizedBox(width: 20),
           MenuItem(
             icon: Icons.settings,
+            label: "Login",
+            onPressed: () => context.go('/login'),
+          ),
+          MenuItem(
+            icon: Icons.settings,
             label: "Setting",
             onPressed: () => context.go('/setting'),
           ),
