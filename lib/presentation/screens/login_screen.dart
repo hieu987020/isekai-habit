@@ -2,12 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:isekai_habit/domain/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 
+// class LoginScreen extends StatelessWidget {
+//   const LoginScreen({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return const Placeholder();
+//   }
+// }
+
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
+    // final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       body: Center(
@@ -26,13 +35,15 @@ class LoginScreen extends StatelessWidget {
               _LoginButton(
                 text: "Continue with Google",
                 iconPath: "assets/icons/google.png",
-                onPressed: () => authProvider.signInWithGoogle(),
+                onPressed: () {},
+                // onPressed: () => authProvider.signInWithGoogle(),
               ),
               const SizedBox(height: 10),
               _LoginButton(
                 text: "Continue with Facebook",
                 iconPath: "assets/icons/facebook.png",
-                onPressed: () => authProvider.signInWithFacebook(),
+                onPressed: () {},
+                // onPressed: () => authProvider.signInWithFacebook(),
               ),
             ],
           ),
@@ -68,10 +79,7 @@ class _LoginButton extends StatelessWidget {
         children: [
           Image.asset(iconPath, width: 24, height: 24),
           const SizedBox(width: 10),
-          Text(
-            text,
-            style: const TextStyle(fontSize: 16, color: Colors.black),
-          ),
+          Text(text, style: const TextStyle(fontSize: 16, color: Colors.black)),
         ],
       ),
     );
