@@ -22,7 +22,7 @@ class LoginScreen extends StatelessWidget {
                 "Welcome to Isekai Habit!",
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 42),
               _LoginButton(
                 text: "Continue with Google",
                 iconPath: "assets/icons/google.png",
