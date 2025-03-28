@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:isekai_habit/domain/providers/auth_provider.dart';
-import 'package:provider/provider.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});

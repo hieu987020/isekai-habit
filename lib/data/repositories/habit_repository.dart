@@ -1,7 +1,10 @@
 import 'package:dio/dio.dart';
+import 'package:intl/intl.dart';
 import 'package:isekai_habit/core/services/logger_service.dart';
+import 'package:isekai_habit/data/models/habit_model.dart';
 import 'package:isekai_habit/data/models/user_model.dart';
 import 'package:isekai_habit/domain/entities/user_entity.dart';
+import 'dart:math';
 
 class HabitRepository {
   final LoggerService _logger;
@@ -36,7 +39,9 @@ class HabitRepository {
       // _logger.info("Successfully fetched user: ${userModel.name}");
 
       // return userModel.toEntity();
-      UserModel userModel = UserModel.fromJson(fakeData);
+      UserModel userModel = generateUserWithOneYearData();
+
+      // UserModel userModel = UserModel.fromJson(fakeData);
       return userModel.toEntity();
     } catch (e, stackTrace) {
       _logger.error(
@@ -50,19 +55,32 @@ class HabitRepository {
   }
 }
 
-var fakeData = {
-  "user_id": "123",
-  "user_name": "Alice",
-  "habits": [
-    {
-      "habit_id": "h1",
-      "habit_name": "Workout",
-      "timeline": {"2024-03-25": true, "2024-03-26": false, "2024-03-27": true},
-    },
-    {
-      "habit_id": "h2",
-      "habit_name": "Reading",
-      "timeline": {"2024-03-25": true, "2024-03-26": true, "2024-03-27": true},
-    },
-  ],
-};
+UserModel generateUserWithOneYearData() {
+  String userId = "123";
+  String userName = "Alice";
+
+  List<HabitModel> habits = [
+    generateHabit("h1", "Workout"),
+    generateHabit("h2", "Reading"),
+    generateHabit("h3", "Meditation"),
+  ];
+
+  return UserModel(id: userId, name: userName, habits: habits);
+}
+
+HabitModel generateHabit(String habitId, String habitName) {
+  Map<String, bool> timeline = {};
+  DateTime today = DateTime.now();
+  Random random = Random();
+
+  for (int i = 0; i < 365; i++) {
+    DateTime date = today.subtract(Duration(days: i));
+    String dateString = DateFormat('yyyy-MM-dd').format(date);
+    // 🔥 Randomly mark days as done (~50% chance)
+    bool isDone = random.nextBool();
+
+    timeline[dateString] = isDone;
+  }
+
+  return HabitModel(id: habitId, name: habitName, timeline: timeline);
+}
