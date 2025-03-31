@@ -14,11 +14,15 @@ class LoginScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.lock, size: 80, color: Color.fromARGB(255, 95, 93, 79)),
+              const Icon(
+                Icons.lock,
+                size: 80,
+                color: Color.fromARGB(255, 95, 93, 79),
+              ),
               const SizedBox(height: 20),
               const Text(
                 "Welcome to Isekai Habit!",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 42),
               _LoginButton(
